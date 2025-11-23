@@ -1,0 +1,364 @@
+title Crypt of the Necrotaker
+author SantiagoPanozzo
+homepage www.puzzlescript.net
+verbose_logging
+norepeat_action
+noaction
+
+========
+OBJECTS
+========
+
+Background
+ #191919
+
+
+TargetLeft
+gray white
+00100
+00010
+11001
+00010
+00100
+
+TargetRight
+gray white
+00100
+01000
+10011
+01000
+00100
+
+TargetUp
+gray white
+00100
+01010
+10001
+00100
+00100
+
+TargetDown
+gray white
+00100
+00100
+10001
+01010
+00100
+
+Wall
+#524b24 #5a532a #635a2c
+00002
+10000
+00200
+02000
+00001
+
+RedWall
+#952b24 #9d332a #A63a2c
+00002
+10000
+00200
+02000
+00001
+
+BlueWall
+#524b57 #5a535d #635a5f
+00002
+10000
+00200
+02000
+00001
+
+GreenWall
+#527e24 #5a862a #638c2c
+00002
+10000
+00200
+02000
+00001
+
+DisabledFakeWall
+transparent
+
+EnablingFakeWall
+transparent
+
+Fireplace
+#88411c #bd6637 #ffde00 #ff9b00 #ff0000 #cecdc8
+5.4..
+.4345
+43234
+32223
+01010
+
+FireplaceSwap
+transparent
+
+Fireplace2
+#88411c #bd6637 #ffde00 #ff9b00 #ff0000 #cecdc8
+..4.5
+5434.
+43234
+32223
+01010
+
+FireplaceSwap2
+transparent
+
+Player
+#435f48 #323c39 #fbf236 #8f563b #696a6a #45283c
+0...0
+.000.
+.232.
+41114
+.5.5.
+
+PlayerDead
+#435f48 #323c39 #fbf236 #8f563b #696a6a #45283c
+.....
+..00.
+.0000
+00333
+554.4
+
+SpikeActive
+#696a6a #777777 #cacaca
+.....
+.....
+.....
+.2.2.
+01010
+
+SpikeDeactivating
+#696a6a #777777 #cacaca
+.....
+.....
+.....
+.2.2.
+01010
+
+SpikeInactive
+#696a6a #777777 #cacaca
+.....
+.....
+.....
+.....
+01010
+
+SpikeReactivating
+#696a6a #777777 #cacaca
+.....
+.....
+.....
+.....
+01010
+
+RedSkull
+#e6e6e6 #cecece #b9b9b9 #da3333 #ffffff
+.004.
+10104
+31312
+03102
+.02..
+
+BlueSkull
+#e6e6e6 #cecece #b9b9b9 #639bff #ffffff
+.004.
+10104
+31312
+03102
+.02..
+
+GreenSkull
+#e6e6e6 #cecece #b9b9b9 #339b33 #ffffff
+.004.
+10104
+31312
+03102
+.02..
+
+BreakingRedSkull
+transparent
+
+BreakingBlueSkull
+transparent
+
+BreakingGreenSkull
+transparent
+
+HorizontalEnemy
+#5b6ee1 #da3333 #639bff #d2d2d2 #b9b9b9
+.2.23
+.2223
+.1014
+00000
+.2.2.
+
+VerticalEnemy
+#ac3232 #da3333 #d95763 #d2d2d2 #b9b9b9
+.2.23
+.2223
+.1014
+00000
+.2.2.
+
+PathNext
+transparent
+
+
+=======
+LEGEND
+=======
+
+. = Background
+# = Wall
+? = RedWall
+! = BlueWall
+$ = GreenWall
+P = Player
+X = SpikeActive
+O = SpikeInactive
+á = TargetUp
+é = TargetLeft
+í = TargetRight
+ó = TargetDown
+R = RedSkull
+B = BlueSkull
+G = GreenSkull
+F = Fireplace
+H = HorizontalEnemy and PathNext
+L = PathNext
+Y = VerticalEnemy and PathNext
+
+AnyTarget = TargetLeft or TargetRight or TargetUp or TargetDown
+
+
+=======
+SOUNDS
+=======
+
+================
+COLLISIONLAYERS
+================
+
+Background
+anytarget, PathNext, BreakingRedSkull, BreakingBlueSkull, BreakingGreenSkull
+SpikeActive, SpikeDeactivating, SpikeInactive, DisabledFakeWall, SpikeReactivating, Fireplace, Fireplace2, FireplaceSwap, FireplaceSwap2, EnablingFakeWall, HorizontalEnemy, VerticalEnemy
+Player, PlayerDead, Wall, RedSkull, BlueSkull, RedWall, BlueWall, GreenWall, GreenSkull
+
+======
+RULES
+======
+
+[ PlayerDead ] -> restart
+
+
+[ > Player | RedSkull ] -> [ Player | > RedSkull ]
+[ > RedSkull | Fireplace ] -> [ > BreakingRedSkull | ]
+[ > RedSkull | Fireplace2 ] -> [ > BreakingRedSkull | ]
+
+
+[ > Player | BlueSkull ] -> [ Player | > BlueSkull ]
+[ > BlueSkull | Fireplace ] -> [ > BreakingBlueSkull | ]
+[ > BlueSkull | Fireplace2 ] -> [ > BreakingBlueSkull | ]
+
+( Animations for fireplace, the swaps will never be instanced)
+[ Fireplace ] -> [ FireplaceSwap ]
+[ Fireplace2 ] -> [ FireplaceSwap2 ]
+
+[ FireplaceSwap ] -> [ Fireplace2 ]
+[ FireplaceSwap2 ] -> [ Fireplace ]
+
+late [ BreakingRedSkull ] [ RedWall ] -> [ BreakingRedSkull ] [ ]
+late [ BreakingBlueSkull ] [ BlueWall ] -> [ BreakingBlueSkull ] [ ]
+
+
+[ SpikeActive ] -> [ SpikeDeactivating ]
+[ SpikeInactive ] -> [ SpikeReactivating ]
+
+[ SpikeDeactivating ] -> [ SpikeInactive ]
+[ SpikeReactivating ] -> [ SpikeActive ]
+
+[ > Player | Wall ] -> cancel
+[ > Player | RedWall ] -> cancel
+[ > Player | BlueWall ] -> cancel
+[ > Player | GreenWall ] -> cancel
+
+
+[ HorizontalEnemy | PathNext ] -> [ > HorizontalEnemy | PathNext ]
+[ VerticalEnemy | PathNext ] -> [ > VerticalEnemy | PathNext ]
+
+late [ Player VerticalEnemy ] -> [ PlayerDead VerticalEnemy ]
+late [ Player HorizontalEnemy ] -> [ PlayerDead HorizontalEnemy ]
+
+late [ Player SpikeActive ] -> [ PlayerDead SpikeActive ]
+late [ Player VerticalEnemy ] -> [ PlayerDead VerticalEnemy ]
+late [ Player HorizontalEnemy ] -> [ PlayerDead HorizontalEnemy ]
+[ > Player | < HorizontalEnemy ] -> [ > PlayerDead | < HorizontalEnemy ]
+[ > Player | < VerticalEnemy ] -> [ > PlayerDead | < VerticalEnemy ]
+
+==============
+WINCONDITIONS
+==============
+
+no PlayerDead
+no RedWall
+no BlueWall
+no GreenWall
+
+all Player on anytarget
+
+=======
+LEVELS
+=======
+
+MESSAGE Clean up that cave! Destroy all those skulls!
+
+############
+############
+#?????######
+#?.f.?######
+#?.r.?######
+#?.p..oxox.é
+#?...?######
+#?????######
+############
+############
+
+MESSAGE Ah, forgot about the spikes, don't worry, they react to your rythm
+
+############
+#..........é
+#...########
+###!!!....F#
+########..B#
+P...R..OF..#
+######?##..#
+######?....#
+######?....#
+############
+
+MESSAGE Those goons just copy your rythm, they have no creativity!
+
+############
+P....L?...##
+#.R..Y?...##
+#.F.####XX##
+########..##
+########..##
+########LH##
+########..##
+########...é
+############
+
+#######á####
+#..........#
+#..........#
+#..........#
+#..#########
+#..........#
+#..........#
+#########..#
+p..........#
+############
+
