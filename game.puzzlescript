@@ -1,4 +1,4 @@
-title Crypt of the Necrotaker
+title Echoes of the Temple
 author SantiagoPanozzo
 homepage www.puzzlescript.net
 verbose_logging
@@ -71,6 +71,14 @@ transparent #9d332a #A63a2c
 
 BlueWall
 #524b57 #5a535d #635a5f
+00002
+10000
+00200
+02000
+00001
+
+BluePopupWall
+transparent #23339a #463a9c
 00002
 10000
 00200
@@ -262,9 +270,10 @@ R = RedSkull
 B = BlueSkull
 G = GreenSkull
 F = Fireplace
-u = UEnemy
+u = DEnemy
 h = REnemy
 k = RedPopupWall
+l = BluePopupWall
 
 HorizontalEnemy = REnemy or LEnemy
 VerticalEnemy = UEnemy or DEnemy
@@ -290,7 +299,7 @@ COLLISIONLAYERS
 Background
 AlreadyMoved
 anytarget, BreakingRedSkull, BreakingBlueSkull, BreakingGreenSkull
-RedPopupWall
+RedPopupWall, BluePopupWall
 UEnemy
 DEnemy
 REnemy
@@ -303,6 +312,8 @@ Player, PlayerDead, Wall, RedSkull, BlueSkull, RedWall, BlueWall, GreenWall, Gre
 RULES
 ======
 
+[ PlayerDead ] -> restart
+
 ( Animations for fireplace, the swaps will never be instanced)
 [ Fireplace ] -> [ FireplaceSwap ]
 [ Fireplace2 ] -> [ FireplaceSwap2 ]
@@ -313,6 +324,7 @@ RULES
 late [ BreakingRedSkull ] [ RedWall ] -> [ BreakingRedSkull ] [ ]
 late [ BreakingRedSkull ] [ RedPopupWall ] -> [ BreakingRedSkull ] [ Wall ]
 late [ BreakingBlueSkull ] [ BlueWall ] -> [ BreakingBlueSkull ] [ ]
+late [ BreakingBlueSkull ] [ BluePopupWall ] -> [ BreakingBlueSkull ] [ Wall ]
 
 
 [ SpikeActive ] -> [ SpikeDeactivating ]
@@ -325,7 +337,7 @@ late [ BreakingBlueSkull ] [ BlueWall ] -> [ BreakingBlueSkull ] [ ]
 
 right [REnemy] -> [> REnemy]
 left [LEnemy] -> [> LEnemy]
-up [UEnemy] -> [> UEnemy]
+up [UEnemy] -> [> UEnemy ]
 down [DEnemy] -> [> DEnemy]
 
 [> REnemy | enemy] -> [> REnemy | > REnemy]
@@ -348,12 +360,15 @@ down [DEnemy] -> [> DEnemy]
 [ > BlueSkull | Fireplace2 ] -> [ > BreakingBlueSkull | ]
 
 late [ killer Player ] -> [ killer PlayerDead ]
+late [ Fireplace Player ] -> [ Fireplace PlayerDead ]
+late [ Fireplace2 Player ] -> [ Fireplace2 PlayerDead ]
 late [ killer killable ] -> [ killer OtherDead ]
 
 late [ Player SpikeActive ] -> [ PlayerDead SpikeActive ]
 late [ Player VerticalEnemy ] -> [ PlayerDead VerticalEnemy ]
 late [ Player HorizontalEnemy ] -> [ PlayerDead HorizontalEnemy ]
 late [BreakingRedSkull] -> [ ]
+
 
 ==============
 WINCONDITIONS
@@ -365,6 +380,7 @@ no BlueWall
 no GreenWall
 
 all Player on anytarget
+some Player on anytarget
 
 =======
 LEVELS
@@ -389,7 +405,7 @@ MESSAGE Ah, forgot about the spikes, don't worry, they react to your rythm
 #...########
 ###!!!....F#
 ########..B#
-P...R..OF..#
+P...Rk.OF..#
 ######?##..#
 ######?....#
 ######?....#
@@ -398,9 +414,9 @@ P...R..OF..#
 MESSAGE Those goons just copy your rythm, they have no creativity!
 
 ############
-P.....?...##
-#.R..u?...##
-#.F.####XX##
+Pk....?...##
+#kR..u?...##
+#kF.####XX##
 ########..##
 ########..##
 ########.H##
@@ -408,15 +424,29 @@ P.....?...##
 ########...é
 ############
 
+MESSAGE They mimic you in every way!... But they only move one way
+
+############
+#.#.#.#.!###
+#.#.#.#.!###
+#.#.#.#u!###
+#.#.#u#.!###
+#.#u#.#.!###
+#u#.#.#b!..#
+#o#x#o#x##.#
+p.......f#.é
+############
+
 Message How is this possible?
 
-#######á####......
-####.#k?..##......
-###...kkkkk#.....#
-#...fxh..........#
-#..##.######.....#
-#..u.ru.u..#.....#
-#...u..u...#h..oho
-#########..#..oho.
-p.........##h..oho
-############......
+#######á####
+###kkkk?..##
+###...kkkkk#
+#...fohb..f#
+#..##.######
+#..u.ru.u..#
+#...u..u...#
+#########..#
+pllll.....##
+############
+
