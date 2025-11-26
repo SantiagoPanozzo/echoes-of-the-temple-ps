@@ -61,6 +61,14 @@ RedWall
 02000
 00001
 
+RedPopupWall
+transparent #9d332a #A63a2c
+00002
+10000
+00200
+02000
+00001
+
 BlueWall
 #524b57 #5a535d #635a5f
 00002
@@ -256,6 +264,7 @@ G = GreenSkull
 F = Fireplace
 u = UEnemy
 h = REnemy
+k = RedPopupWall
 
 HorizontalEnemy = REnemy or LEnemy
 VerticalEnemy = UEnemy or DEnemy
@@ -281,6 +290,7 @@ COLLISIONLAYERS
 Background
 AlreadyMoved
 anytarget, BreakingRedSkull, BreakingBlueSkull, BreakingGreenSkull
+RedPopupWall
 UEnemy
 DEnemy
 REnemy
@@ -301,6 +311,7 @@ RULES
 [ FireplaceSwap2 ] -> [ Fireplace ]
 
 late [ BreakingRedSkull ] [ RedWall ] -> [ BreakingRedSkull ] [ ]
+late [ BreakingRedSkull ] [ RedPopupWall ] -> [ BreakingRedSkull ] [ Wall ]
 late [ BreakingBlueSkull ] [ BlueWall ] -> [ BreakingBlueSkull ] [ ]
 
 
@@ -342,6 +353,7 @@ late [ killer killable ] -> [ killer OtherDead ]
 late [ Player SpikeActive ] -> [ PlayerDead SpikeActive ]
 late [ Player VerticalEnemy ] -> [ PlayerDead VerticalEnemy ]
 late [ Player HorizontalEnemy ] -> [ PlayerDead HorizontalEnemy ]
+late [BreakingRedSkull] -> [ ]
 
 ==============
 WINCONDITIONS
@@ -399,8 +411,8 @@ P.....?...##
 Message How is this possible?
 
 #######á####......
-####.#.?..##......
-###..#.....#.....#
+####.#k?..##......
+###...kkkkk#.....#
 #...fxh..........#
 #..##.######.....#
 #..u.ru.u..#.....#
