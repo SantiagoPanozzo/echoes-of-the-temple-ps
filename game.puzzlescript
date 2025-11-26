@@ -121,6 +121,14 @@ PlayerDead
 00333
 554.4
 
+OtherDead
+red #323c39 #fbf236 #8f563b #696a6a #45283c
+.....
+..00.
+.0000
+00333
+554.4
+
 SpikeActive
 #696a6a #777777 #cacaca
 .....
@@ -186,7 +194,8 @@ transparent
 BreakingGreenSkull
 transparent
 
-HorizontalEnemy
+(Right)
+REnemy
 #5b6ee1 #da3333 #639bff #d2d2d2 #b9b9b9
 .2.23
 .2223
@@ -194,7 +203,17 @@ HorizontalEnemy
 00000
 .2.2.
 
-VerticalEnemy
+(Left)
+LEnemy
+#5b6ee1 #da3333 #639bff #d2d2d2 #b9b9b9
+32.2.
+3222.
+4101.
+00000
+.2.2.
+
+(Up)
+UEnemy
 #ac3232 #da3333 #d95763 #d2d2d2 #b9b9b9
 .2.23
 .2223
@@ -202,7 +221,16 @@ VerticalEnemy
 00000
 .2.2.
 
-PathNext
+(Down)
+DEnemy
+#ac3232 #da3333 #d95763 #d2d2d2 #b9b9b9
+32.2.
+3222.
+4101.
+00000
+.2.2.
+
+AlreadyMoved
 transparent
 
 
@@ -226,11 +254,20 @@ R = RedSkull
 B = BlueSkull
 G = GreenSkull
 F = Fireplace
-H = HorizontalEnemy and PathNext
-L = PathNext
-Y = VerticalEnemy and PathNext
+u = UEnemy
+h = REnemy
+
+HorizontalEnemy = REnemy or LEnemy
+VerticalEnemy = UEnemy or DEnemy
+
+Enemy = horizontalenemy or verticalenemy
 
 AnyTarget = TargetLeft or TargetRight or TargetUp or TargetDown
+Killable = Player or HorizontalEnemy or VerticalEnemy
+Killer = HorizontalEnemy or VerticalEnemy or SpikeActive
+pusher = Player or enemy
+Stoppable = Player
+Solid = Wall or RedWall or BlueWall or GreenWall
 
 
 =======
@@ -242,25 +279,19 @@ COLLISIONLAYERS
 ================
 
 Background
-anytarget, PathNext, BreakingRedSkull, BreakingBlueSkull, BreakingGreenSkull
-SpikeActive, SpikeDeactivating, SpikeInactive, DisabledFakeWall, SpikeReactivating, Fireplace, Fireplace2, FireplaceSwap, FireplaceSwap2, EnablingFakeWall, HorizontalEnemy, VerticalEnemy
+AlreadyMoved
+anytarget, BreakingRedSkull, BreakingBlueSkull, BreakingGreenSkull
+UEnemy
+DEnemy
+REnemy
+LEnemy
+OtherDead
+SpikeActive, SpikeDeactivating, SpikeInactive, DisabledFakeWall, SpikeReactivating, Fireplace, Fireplace2, FireplaceSwap, FireplaceSwap2, EnablingFakeWall
 Player, PlayerDead, Wall, RedSkull, BlueSkull, RedWall, BlueWall, GreenWall, GreenSkull
 
 ======
 RULES
 ======
-
-[ PlayerDead ] -> restart
-
-
-[ > Player | RedSkull ] -> [ Player | > RedSkull ]
-[ > RedSkull | Fireplace ] -> [ > BreakingRedSkull | ]
-[ > RedSkull | Fireplace2 ] -> [ > BreakingRedSkull | ]
-
-
-[ > Player | BlueSkull ] -> [ Player | > BlueSkull ]
-[ > BlueSkull | Fireplace ] -> [ > BreakingBlueSkull | ]
-[ > BlueSkull | Fireplace2 ] -> [ > BreakingBlueSkull | ]
 
 ( Animations for fireplace, the swaps will never be instanced)
 [ Fireplace ] -> [ FireplaceSwap ]
@@ -279,23 +310,38 @@ late [ BreakingBlueSkull ] [ BlueWall ] -> [ BreakingBlueSkull ] [ ]
 [ SpikeDeactivating ] -> [ SpikeInactive ]
 [ SpikeReactivating ] -> [ SpikeActive ]
 
-[ > Player | Wall ] -> cancel
-[ > Player | RedWall ] -> cancel
-[ > Player | BlueWall ] -> cancel
-[ > Player | GreenWall ] -> cancel
+[ > player | solid ] -> cancel
+
+right [REnemy] -> [> REnemy]
+left [LEnemy] -> [> LEnemy]
+up [UEnemy] -> [> UEnemy]
+down [DEnemy] -> [> DEnemy]
+
+[> REnemy | enemy] -> [> REnemy | > REnemy]
+[> DEnemy | enemy] -> [> DEnemy | > DEnemy]
+[> LEnemy | enemy] -> [> LEnemy | > LEnemy]
+[> UEnemy | enemy] -> [> UEnemy | > UEnemy]
+
+[> REnemy | solid] -> [< LEnemy | solid]
+[> LEnemy | solid] -> [< REnemy | solid]
+[> UEnemy | solid] -> [< DEnemy | solid]
+[> DEnemy | solid] -> [< UEnemy | solid]
+
+[ > pusher | RedSkull ] -> [ pusher | > RedSkull ]
+[ > RedSkull | Fireplace ] -> [ > BreakingRedSkull | ]
+[ > RedSkull | Fireplace2 ] -> [ > BreakingRedSkull | ]
 
 
-[ HorizontalEnemy | PathNext ] -> [ > HorizontalEnemy | PathNext ]
-[ VerticalEnemy | PathNext ] -> [ > VerticalEnemy | PathNext ]
+[ > pusher | BlueSkull ] -> [ pusher | > BlueSkull ]
+[ > BlueSkull | Fireplace ] -> [ > BreakingBlueSkull | ]
+[ > BlueSkull | Fireplace2 ] -> [ > BreakingBlueSkull | ]
 
-late [ Player VerticalEnemy ] -> [ PlayerDead VerticalEnemy ]
-late [ Player HorizontalEnemy ] -> [ PlayerDead HorizontalEnemy ]
+late [ killer Player ] -> [ killer PlayerDead ]
+late [ killer killable ] -> [ killer OtherDead ]
 
 late [ Player SpikeActive ] -> [ PlayerDead SpikeActive ]
 late [ Player VerticalEnemy ] -> [ PlayerDead VerticalEnemy ]
 late [ Player HorizontalEnemy ] -> [ PlayerDead HorizontalEnemy ]
-[ > Player | < HorizontalEnemy ] -> [ > PlayerDead | < HorizontalEnemy ]
-[ > Player | < VerticalEnemy ] -> [ > PlayerDead | < VerticalEnemy ]
 
 ==============
 WINCONDITIONS
@@ -311,7 +357,6 @@ all Player on anytarget
 =======
 LEVELS
 =======
-
 MESSAGE Clean up that cave! Destroy all those skulls!
 
 ############
@@ -341,24 +386,25 @@ P...R..OF..#
 MESSAGE Those goons just copy your rythm, they have no creativity!
 
 ############
-P....L?...##
-#.R..Y?...##
+P.....?...##
+#.R..u?...##
 #.F.####XX##
 ########..##
 ########..##
-########LH##
+########.H##
 ########..##
 ########...é
 ############
 
-#######á####
-#..........#
-#..........#
-#..........#
-#..#########
-#..........#
-#..........#
-#########..#
-p..........#
-############
+Message How is this possible?
 
+#######á####......
+####.#.?..##......
+###..#.....#.....#
+#...fxh..........#
+#..##.######.....#
+#..u.ru.u..#.....#
+#...u..u...#h..oho
+#########..#..oho.
+p.........##h..oho
+############......
